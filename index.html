@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <title>chat site</title>
+    </head>
+    <body bgcolor='#EFEFEF'>
+        <div class="main-container">
+            <h1>chat site!</h1>
+            <hr>
+            <h3 id="chatArea"></h3>
+            <hr>
+            <a href="" style="font-size: 15px; display: flex; justify-content: center;">reload</a>
+            <hr>
+            <form>
+                <input type="text" id="nameField" placeholder="name" value="anonymous" style="background-color: #EFEFEF;" required><br>
+                <input type="text" id="msgField" placeholder="text" style="background-color: #EFEFEF;" required><br>
+                <button id="msgSend" style="display: flex;" style="background-color: #EFEFEF;">msgSend</button>
+            </form>
+        </div>
+    </body>
+    <script>
+        const chatArea = document.getElementById("chatArea");
+
+        // message load
+        window.onload = function() {
+            fetch("http://localhost:3000/messages", {
+                method: "GET",
+            }).then((response) => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("エラーナリ。");
+                }
+            }).then((data) => {
+                const messages = data.messages.split("\n");
+                for (const message of messages) {
+                    if (message === "") { return; };
+                    chatArea.innerHTML += `${message}<br><hr>`;
+                }
+            }).catch((error) => {
+                console.error("原因不明のエラーが発生したナリ。。。", error);
+            });
+        }
+
+        // message send
+        document.getElementById("msgSend").addEventListener("click", function() {
+            const name = document.getElementById("nameField").value;
+            const msg = document.getElementById("msgField").value;
+            fetch("http://localhost:3000/message/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: name,
+                    msg: msg,
+                }),
+            }).then((response) => {
+                if (response.ok) {
+                    console.log("✓ Sent to message.");
+                } else {
+                    throw new Error("おいおいマジかよエラーだぞ！？えぇ！？");
+                }
+            }).catch((error) => { console.error("Error: 私理由分からないアルヨ"); });
+        });
+
+    </script>
+</html>
